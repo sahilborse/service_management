@@ -5,14 +5,17 @@ professional_bp = Blueprint('professional_bp', __name__)
 
 @professional_bp.route('/dashboard')
 def dashboard():
-    print("IN professional Dashboard !! ")
+    # print("IN professional Dashboard !! ")
     professional_id = session.get('professional_id')
     print("Professional ID : ", professional_id)
     
     if not professional_id:
         return jsonify({"error": "Unauthorized"}), 401
     # Fetch all service requests
-    service_requests = ServiceRequest.query.all()
+   # Correct way using filter_by (if column name matches argument name)
+    service_requests = ServiceRequest.query.filter_by(professional_id=professional_id).all()
+
+    # service_requests = ServiceRequest.query.all()
     service_requests_data = [
         {
             'id': request.id,

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session, flash, redirect, url_for
 from datetime import datetime
-from models import db, Customer, Service, ServiceRequest
+from models import db, Customer, Service, ServiceRequest,Professional
 from config.redis import redis_client
 
 customer_bp = Blueprint('customer_bp', __name__)
@@ -54,12 +54,25 @@ def request_service(service_id):
         return jsonify({"error": "Unauthorized"}), 401
 
     service = Service.query.get(service_id)
+
+    # professional = Professional.query.get(service_type=service.name)
+    # ✅ Use filter_by() if the column name matches the argument
+    professional = Professional.query.filter_by(service_type=service.name).first()
+
+    # Or use filter() if you need more flexibility
+    # professional = Professional.query.filter(Professional.service_type == service.name).first()
+
+    # Print result
+    print(professional)
+
+    # print(professional)
    
     if service:
-        redis_client.set(f"service:{service_id}:customer:{customer_id}", "Requested")
+        # redis_client.set(f"service:{service_id}:customer:{customer_id}", professional)
         new_request = ServiceRequest(
             service_id=service.id,
             customer_id=customer_id,
+            professional_id = professional.id,
             date_of_request=datetime.now(),
             status="Requested"
         )
